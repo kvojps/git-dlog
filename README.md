@@ -1,6 +1,7 @@
 # 📜 Git dlog
 
 Este script percorre recursivamente um diretório base, localiza múltiplos repositórios Git e exibe informações relevantes como o último commit, branches locais e branches remotas de cada repositório.
+
 ![image](https://github.com/user-attachments/assets/a117b4c3-e318-4709-8efd-9f3e8dfea3fe)
 
 
