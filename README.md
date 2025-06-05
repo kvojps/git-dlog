@@ -7,7 +7,7 @@ Este script percorre recursivamente um diretório base, localiza múltiplos repo
 
 ## 🧪 Exemplo de Uso
 
-- Substitua `"<PATH>"` pelo caminho do diretório onde deseja procurar os repositórios Git;
+- Adicione em `BASE_PATH` o caminho do diretório onde deseja procurar os repositórios Git;
 - Crie o alias para o git:
     ``` bash
     git config --global alias.dlog '!bash ~/scripts/git/gitdlog.sh'
