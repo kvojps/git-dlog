@@ -2,6 +2,8 @@
   "name": "git-dlog",
   "version": "2.0.0",
   "private": true,
+  "description": "Git Dlog - painel do que precisa de atenção nos seus repositórios git locais",
+  "author": "kvojps <62623689+kvojps@users.noreply.github.com>",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -9,7 +11,8 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit",
-    "dist:win": "electron-vite build && electron-builder --win"
+    "dist:win": "electron-vite build && electron-builder --win",
+    "dist:linux": "electron-vite build && electron-builder --linux deb"
   },
   "build": {
     "appId": "com.gitdlog.desktop",
@@ -33,6 +36,12 @@
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "deb",
+      "icon": "build/icon.png",
+      "category": "Development",
+      "maintainer": "kvojps <62623689+kvojps@users.noreply.github.com>"
     },
     "nsis": {
       "oneClick": false,
