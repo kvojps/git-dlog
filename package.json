@@ -11,9 +11,9 @@
     "preview": "electron-vite preview",
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit",
+    "notices": "node ../../scripts/generate-third-party-notices.mjs git-dlog",
     "dist:win": "npm run notices && electron-vite build && electron-builder --win",
-    "dist:linux": "npm run notices && electron-vite build && electron-builder --linux deb",
-    "notices": "node ../../scripts/generate-third-party-notices.mjs git-dlog"
+    "dist:linux": "npm run notices && electron-vite build && electron-builder --linux deb"
   },
   "build": {
     "appId": "com.gitdlog.app",
@@ -47,7 +47,7 @@
       "target": "nsis"
     },
     "linux": {
-      "icon": "build/icon.png",
+      "icon": "resources/icon.png",
       "target": "deb",
       "category": "Development",
       "maintainer": "kvojps <62623689+kvojps@users.noreply.github.com>"
