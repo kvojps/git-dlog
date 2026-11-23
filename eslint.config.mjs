@@ -13,35 +13,31 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
-    files: [
-      'apps/*/src/main/**/*.ts',
-      'apps/*/src/preload/**/*.ts',
-      'apps/*/electron.vite.config.ts',
-    ],
+    files: ['src/main/**/*.ts', 'src/preload/**/*.ts', '*.config.{mjs,ts}'],
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['apps/*/src/renderer/**/*.{ts,tsx}'],
+    files: ['src/renderer/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },
     plugins: { 'react-hooks': reactHooks },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
 
-      // Fronteira do IPC (README, §2.4). O renderer fala com o main por uma fachada
-      // só; o resto chama métodos comuns e não conhece o formato do erro do IPC.
+      // O renderer fala com o main pela fachada descrita em Fronteira entre
+      // processos, no README. Ela trata o formato de erro do IPC.
       'no-restricted-properties': [
         'error',
         {
           object: 'window',
           property: 'api',
           message:
-            'Só `api/client.ts` conhece `window.api`. Use a fachada `@/api/client` (README, §2.4).',
+            'Só `api/client.ts` conhece `window.api`. Use a fachada `@/api/client` (README, Fronteira entre processos).',
         },
       ],
       // A outra metade da mesma fronteira: módulo do `main` que não depende de
       // `electron` importa sem erro no renderer e duplica o domínio em silêncio —
-      // decidir o que atravessa o IPC é do main (ADR-0003).
+      // decidir o que atravessa o IPC é do main.
       'no-restricted-imports': [
         'error',
         {
@@ -51,7 +47,7 @@ export default tseslint.config(
               // Ancorados em `..` e em `@/` para não alcançar nome de pacote.
               group: ['../**/main/**', '@/**/main/**'],
               message:
-                'O renderer não importa de `src/main`. O que atravessa o IPC entra por `@shared/` ou pela fachada `@/api/client` (ADR-0003).',
+                'O renderer não importa de `src/main`. O que atravessa o IPC entra por `@shared/` ou pela fachada `@/api/client`.',
             },
           ],
         },
@@ -59,7 +55,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/*/src/renderer/src/api/client.ts'],
+    files: ['src/renderer/src/api/client.ts'],
     rules: { 'no-restricted-properties': 'off' },
   },
   prettier,

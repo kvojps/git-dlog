@@ -1,19 +1,15 @@
 #!/usr/bin/env node
-// Gera o THIRD-PARTY-NOTICES.md de um app a partir da árvore de dependências de
+// Gera o THIRD-PARTY-NOTICES.md a partir da árvore de dependências de
 // produção resolvida pelo npm. A MIT e a OFL exigem que o aviso de copyright
 // acompanhe o binário distribuído; este arquivo é o veículo desse aviso.
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
-const app = process.argv[2];
-if (!app) {
-  console.error('uso: generate-third-party-notices.mjs <workspace>');
-  process.exit(1);
-}
-
-const root = new URL('..', import.meta.url).pathname;
-const appDir = join(root, 'apps', app);
+const root = fileURLToPath(new URL('..', import.meta.url));
+const product = readJson(join(root, 'package.json'));
 
 const LICENSE_FILE = /^(LICEN[CS]E|COPYING|NOTICE|OFL)([.-].*)?$/i;
 
@@ -40,7 +36,7 @@ function licenseTextOf(dir) {
   }
   const match = files
     .filter((entry) => entry.isFile() && LICENSE_FILE.test(entry.name))
-    .sort((a, b) => a.name.localeCompare(b.name))[0];
+    .sort((a, b) => a.name.localeCompare(b.name, 'en'))[0];
   if (!match) return null;
   // Alguns pacotes publicam o texto da licença com CRLF; normaliza para LF para
   // o arquivo gerado casar com o `eol=lf` do `.gitattributes` e uma re-geração
@@ -61,47 +57,37 @@ const packages = new Map();
 
 function collect(node) {
   for (const [name, entry] of Object.entries(node.dependencies ?? {})) {
-    // Workspaces locais não são terceiros: o LICENSE da raiz já os cobre.
-    const local = entry.resolved?.startsWith('file:') || name === app;
     const key = `${name}@${entry.version}`;
-    if (!local && entry.path && !packages.has(key)) {
+    if (entry.path && !packages.has(key)) {
       packages.set(key, { name, version: entry.version, dir: entry.path });
     }
     collect(entry);
   }
 }
 
-// `npm ls` sai com código != 0 quando a árvore tem qualquer problema (dep
-// extraneous, versão inválida herdada de outro workspace), mas ainda assim
-// emite o JSON completo no stdout. O que interessa aqui é a árvore; lê-se o
-// stdout do erro nesse caso em vez de abortar.
-function npmLs() {
-  try {
-    return execFileSync('npm', ['ls', '--omit=dev', '--all', '--long', '--json', '-w', app], {
-      cwd: root,
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-    });
-  } catch (err) {
-    if (err.stdout) return err.stdout;
-    throw err;
-  }
-}
-
-const tree = JSON.parse(npmLs());
-collect(tree);
+const npmCli = process.env.npm_execpath;
+const [npm, ...npmPrefix] = npmCli ? [process.execPath, npmCli] : ['npm'];
+const { stdout } = await promisify(execFile)(
+  npm,
+  [...npmPrefix, 'ls', '--omit=dev', '--all', '--long', '--json'],
+  {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  },
+);
+collect(JSON.parse(stdout));
 
 // O Electron é devDependency porque não é importado pelo bundle, mas é o binário
 // que se distribui — o aviso dele precisa estar aqui.
-const electronVersion = readJson(join(appDir, 'package.json')).devDependencies?.electron;
-if (electronVersion) {
+if (product.devDependencies?.electron) {
   const dir = join(root, 'node_modules', 'electron');
   const version = readJson(join(dir, 'package.json')).version;
   packages.set(`electron@${version}`, { name: 'electron', version, dir });
 }
 
 const entries = [...packages.values()].sort(
-  (a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version),
+  (a, b) => a.name.localeCompare(b.name, 'en') || a.version.localeCompare(b.version, 'en'),
 );
 
 const sections = [];
@@ -126,8 +112,7 @@ for (const entry of entries) {
   );
 }
 
-const product = readJson(join(appDir, 'package.json'));
-const notices = `# Avisos de terceiros — ${product.productName ?? product.name} ${product.version}
+const notices = `# Avisos de terceiros — ${product.build?.productName ?? product.name} ${product.version}
 
 Gerado por \`scripts/generate-third-party-notices.mjs\`; não editar à mão.
 Reúne ${entries.length} pacotes distribuídos junto com o aplicativo. O código
@@ -139,7 +124,7 @@ instalados pelo electron-builder ao lado do executável (\`LICENSES.chromium.htm
 ${sections.join('\n\n')}
 `;
 
-writeFileSync(join(appDir, 'THIRD-PARTY-NOTICES.md'), notices);
+writeFileSync(join(root, 'THIRD-PARTY-NOTICES.md'), notices);
 console.log(`THIRD-PARTY-NOTICES.md: ${entries.length} pacotes`);
 if (missing.length) {
   console.warn(`sem texto de licença (${missing.length}): ${missing.join(', ')}`);

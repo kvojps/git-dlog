@@ -1,4 +1,4 @@
-# Avisos de terceiros — git-dlog 1.0.0-beta
+# Avisos de terceiros — Git Dlog 1.0.0-beta
 
 Gerado por `scripts/generate-third-party-notices.mjs`; não editar à mão.
 Reúne 55 pacotes distribuídos junto com o aplicativo. O código
@@ -1117,7 +1117,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ```
 
-## lucide-react 1.44.0
+## lucide-react 1.46.0
 
 Licença: ISC
 Autoria: Eric Fennis

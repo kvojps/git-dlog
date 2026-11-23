@@ -8,7 +8,7 @@
   "importOrderSortSpecifiers": true,
   "overrides": [
     {
-      "files": "apps/*/src/renderer/**/*.{ts,tsx}",
+      "files": "src/renderer/**/*.{ts,tsx}",
       "options": {
         "importOrder": [
           "<THIRD_PARTY_MODULES>",

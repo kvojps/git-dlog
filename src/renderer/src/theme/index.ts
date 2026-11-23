@@ -29,7 +29,7 @@ const WARNING_CONTRAST_TEXT = 'rgba(0, 0, 0, 0.87)';
  * Os valores do tema do piloto, num lugar só. A paleta MUI e as variáveis CSS
  * que o Tailwind consome são duas leituras da mesma tabela — quando estavam
  * escritas duas vezes, nada impedia que divergissem em silêncio.
- * Medições e procedência em `apps/git-dlog/docs/orca-theme.md`.
+ * Medições e procedência em `docs/orca-theme.md`.
  */
 const uiTokens = (mode: ThemeMode) => {
   const light = mode === 'light';

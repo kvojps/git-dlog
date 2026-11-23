@@ -55,9 +55,9 @@ O "Buscar do remoto" mostra o progresso das **duas etapas separadamente** (fetch
 - **Branch atual** e o **commit de topo**: hash curto, assunto, autor e quanto tempo faz.
 - **Sincronia da branch atual**, em um chip que responde "preciso dar push ou pull?" — `sem upstream` (vermelho), `sincronizada` (verde), setas com a contagem de commits para enviar e para receber, `HEAD detached` ou `sem commits` para um repositório recém-inicializado.
 - **Working tree**: contagens de arquivos em conflito, staged, modificados e não rastreados, mais os stashes — ou "Working tree limpa".
-- **Avisos de branch**: nunca publicadas, com upstream apagado no remoto e com PR já mergeado (detalhados em [Branches](#branches)).
-- **Pull requests abertos** (detalhados em [Pull requests](#pull-requests)).
-- **Site publicado**, como ícone de globo ao lado do nome (detalhado em [Site publicado](#site-publicado)).
+- **Avisos de branch**: nunca publicadas, com upstream apagado no remoto e com PR já mergeado (detalhados em [Branches](#17-branches)).
+- **Pull requests abertos** (detalhados em [Pull requests](#18-pull-requests)).
+- **Site publicado**, como ícone de globo ao lado do nome (detalhado em [Site publicado](#19-site-publicado)).
 - **Último contato com o remoto** ("remoto lido há 2 horas", "nunca buscado"), com a data exata no tooltip.
 - **Contagem de branches** locais e remotas, com a lista completa atrás de um clique.
 
@@ -142,3 +142,45 @@ O script bash original, `gitdlog.sh`, continua no repositório e funciona de for
   ```
 
 Este script — e, por consequência, o app — foi inspirado e adaptado a partir do artigo original de **Andrew Rea**: [andrewrea.co.uk/posts/git-log-over-multiple-repos](https://andrewrea.co.uk/posts/git-log-over-multiple-repos/)
+
+## 3. Desenvolvimento
+
+Use Node.js 24 com npm e Git no `PATH`. O módulo SQLite é recompilado para o
+Electron durante a instalação. No Linux, tenha Python 3, `make` e um compilador
+C/C++ disponíveis (por exemplo, `python3` e `build-essential` no Debian/Ubuntu).
+No Windows, instale Python 3 e a carga de trabalho de desenvolvimento desktop
+com C++ do Visual Studio. Para abrir a interface, use uma sessão gráfica.
+
+Execute os comandos a partir da raiz do checkout:
+
+```bash
+npm ci
+npm run dev
+```
+
+Para validar as alterações e gerar o build de produção:
+
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run build
+```
+
+O build fica em `out/`. Rode `npm run preview` para abri-lo localmente. Os
+comandos `npm run dist:linux` e `npm run dist:win` geram, respectivamente, um
+instalador `.deb` e um instalador NSIS em `dist/`, com publicação automática
+desativada. Ao alterar dependências de produção, rode `npm run notices` e
+inclua os avisos atualizados junto com o lockfile.
+
+### Fronteira entre processos
+
+O renderer usa a fachada [`@/api/client`](src/renderer/src/api/client.ts) para
+chamar o main por IPC. Os contratos compartilhados ficam em
+[`src/shared`](src/shared). O main é responsável pelas decisões de domínio,
+incluindo o cálculo e a ordenação por severidade.
+
+## 4. Licença
+
+O Git Dlog usa a [licença MIT](LICENSE). As licenças e atribuições das
+dependências distribuídas estão em [Avisos de terceiros](THIRD-PARTY-NOTICES.md).
